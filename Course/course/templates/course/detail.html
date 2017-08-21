@@ -1,0 +1,90 @@
+{% extends 'course/base.html' %}
+{% block title %}{{ course }}{% endblock %}
+{% block courses_active %}active{% endblock %}
+
+{% block body %}
+<div class="container-fluid notes-container">
+
+    <div class="row">
+
+        <!-- Left Course Info -->
+        <div class="col-sm-4 col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <a href="{% url 'course:detail' course.id %}">
+                        {% if course.course_logo %}
+                            <img src="{{ course.course_logo.url }}" class="img-responsive">
+                        {% else %}
+                            <h3>No image to display</h3>
+                        {% endif %}
+                    </a>
+                    <h1>{{ course.course_title }} <small>{{ course.genre }}</small></h1>
+                    <h2>{{ course.author }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Notes Info -->
+        <div class="col-sm-8 col-md-9">
+
+            <ul class="nav nav-pills" style="margin-bottom: 10px;">
+                <li role="presentation" class="active"><a href="{% url 'course:detail' course.id %}">View All</a></li>
+                <li role="presentation"><a href="{% url 'course:create_notes' course.id %}">Add New Notes</a></li>
+            </ul>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <h3>All Notes</h3>
+
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Chapter Title</th>
+                            <th>Audio File</th>
+                            <th>Favorite</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for notes in course.notes_set.all %}
+                            <tr>
+                                <td>{{ notes.chapter_title }}</td>
+                                <td>
+                                    <a target="_blank" href="{{ notes.audio_file.url }}">
+                                        <button type="button" class="btn btn-success btn-xs">
+                                            <span class="glyphicon glyphicon-play"></span>&nbsp; Play
+                                        </button>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'course:favorite' course.id %}" class="btn-favorite"><span class="glyphicon glyphicon-star {% if notes.is_favorite %}active{% endif %}"></span></a>
+                                </td>
+                                <td>
+                                    <form action="{% url 'course:delete_notes' course.id notes.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="notes_id" value="{{ notes.id }}" />
+                                        <button type="submit" class="btn btn-danger btn-xs">
+                                            <span class="glyphicon glyphicon-remove"></span>&nbsp; Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
